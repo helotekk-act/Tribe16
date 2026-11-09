@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#17191c">
+<title>TRIBE 16 – Groovebox</title>
+<style>
+:root{color-scheme:dark;--bg:#17191c;--panel:#24282d;--panel2:#30363d;--orange:#ff8a24;--yellow:#ffd15c;--muted:#9ca5ad}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(#202328,#111315);color:#f5f5f2;font:14px system-ui,-apple-system,sans-serif;min-height:100vh;padding:12px}
+.app{max-width:900px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.brand{font-weight:900;letter-spacing:2px;font-size:20px}.brand span{color:var(--orange)}.screen{background:#101b1b;border:3px solid #42484d;border-radius:7px;padding:10px 13px;box-shadow:inset 0 0 18px #000;min-width:125px;text-align:right}
+.screen small{display:block;color:#8caa9d;font-size:10px;letter-spacing:1px}.screen strong{font: bold 23px ui-monospace,monospace;color:#b9f4c8}
+.panel{background:linear-gradient(145deg,#30353b,#202429);border:1px solid #454b52;border-radius:12px;padding:13px;margin:10px 0;box-shadow:0 5px 14px #0006}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.controls{justify-content:space-between}
+button{border:1px solid #555d65;background:linear-gradient(#4a5159,#30363d);color:white;border-radius:7px;padding:10px 13px;font-weight:700;cursor:pointer;touch-action:manipulation}
+button:active{transform:translateY(1px)}button.primary{background:linear-gradient(#ffad48,#d96912);border-color:#ffb65f;color:#1b1712}
+button.active{background:var(--orange);color:#171717;border-color:#ffc078}
+label{color:var(--muted);font-size:11px;display:block;margin-bottom:4px}input[type=range]{width:120px;accent-color:var(--orange)}
+.tracklist{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.track{padding:11px 5px;text-align:center}.track b{display:block;font-size:12px}.track small{color:var(--muted);font-size:10px}
+.steps{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:7px}
+.step{padding:0;aspect-ratio:1/1;border-radius:6px;background:linear-gradient(#444b52,#282d32);border:1px solid #626a72;position:relative}
+.step:nth-child(4n+1){margin-left:0}
+.step.on{background:linear-gradient(#ffb34f,#db741b);border-color:#ffd28a;box-shadow:0 0 10px #ff8a2466}
+.step.playhead{outline:2px solid #fff;outline-offset:1px}
+.step:after{content:attr(data-n);position:absolute;bottom:3px;right:5px;font-size:9px;color:#ffffffa0}
+.knobs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.knob{text-align:center}.dial{width:52px;height:52px;margin:5px auto;border-radius:50%;border:5px solid #515961;background:conic-gradient(var(--orange) 0 45%,#15181b 45% 100%);box-shadow:inset 0 0 0 3px #24282d,0 3px 5px #000}
+.hint{color:#aeb5bb;font-size:12px;line-height:1.5}.sectiontitle{font-size:11px;letter-spacing:1.5px;color:#c0c7ce;font-weight:800;margin-bottom:10px}
+@media(min-width:650px){.steps{grid-template-columns:repeat(16,minmax(0,1fr))}.step{aspect-ratio:1/1}.tracklist{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:380px){body{padding:8px}.panel{padding:10px}.steps{gap:5px}.step{border-radius:4px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><div><div class="brand">TRIBE <span>16</span></div><div class="hint">MOBILE GROOVEBOX · prototype 0.1</div></div><div class="screen"><small>SEQUENCER / BPM</small><strong id="bpmRead">120</strong></div></div>
+  <div class="panel">
+    <div class="row controls">
+      <div class="row"><button class="primary" id="play">▶ PLAY</button><button id="stop">■ STOP</button></div>
+      <div><label for="bpm">TEMPO <span id="bpmVal">120</span> BPM</label><input id="bpm" type="range" min="60" max="180" value="120"></div>
+    </div>
+  </div>
+  <div class="panel"><div class="sectiontitle">PART SELECT</div><div class="tracklist" id="tracks">
+    <button class="track active" data-track="0"><b>KICK</b><small>DRUM 01</small></button>
+    <button class="track" data-track="1"><b>SNARE</b><small>DRUM 02</small></button>
+    <button class="track" data-track="2"><b>HI-HAT</b><small>DRUM 03</small></button>
+    <button class="track" data-track="3"><b>BASS</b><small>SYNTH 01</small></button>
+  </div></div>
+  <div class="panel"><div class="sectiontitle">16-STEP SEQUENCER · SELECTED PART: <span id="partName">KICK</span></div><div class="steps" id="steps"></div><p class="hint">Tippe die Steps an, um Noten zu setzen. Auf breiten Displays erscheinen alle 16 Steps in einer Reihe.</p></div>
+  <div class="panel"><div class="sectiontitle">SOUND / PERFORMANCE</div><div class="knobs">
+    <div class="knob"><label for="level">LEVEL</label><div class="dial"></div><input id="level" type="range" min="0" max="100" value="75"></div>
+    <div class="knob"><label for="tone">TONE</label><div class="dial"></div><input id="tone" type="range" min="0" max="100" value="55"></div>
+    <div class="knob"><label for="decay">DECAY</label><div class="dial"></div><input id="decay" type="range" min="5" max="100" value="45"></div>
+  </div></div>
+  <div class="panel"><div class="sectiontitle">PATTERN</div><div class="row"><button id="clear">CLEAR PART</button><button id="demo">LOAD DEMO</button><button id="save">SAVE PATTERN</button></div><p class="hint" id="status">Audio startet erst nach deinem ersten Tippen auf PLAY.</p></div>
+  <p class="hint">Eigenständiger Groovebox-Prototyp – keine originale KORG-Software oder KORG-Sounds.</p>
+</div>
+<script>
+const names=["KICK","SNARE","HI-HAT","BASS"], patterns=Array.from({length:4},()=>Array(16).fill(false));
+let selected=0, playing=false, step=0, timer=null, audio=null, nextTime=0;
+const $=id=>document.getElementById(id);
+const stepsEl=$("steps");
+function draw(){
+  stepsEl.innerHTML="";
+  patterns[selected].forEach((on,i)=>{
+    const b=document.createElement("button");b.className="step"+(on?" on":"")+(playing&&i===step?" playhead":"");b.dataset.n=i+1;b.setAttribute("aria-label","Step "+(i+1));
+    b.onclick=()=>{patterns[selected][i]=!patterns[selected][i];draw();};stepsEl.appendChild(b);
+  });
+}
+function selectTrack(n){selected=n;document.querySelectorAll(".track").forEach((b,i)=>b.classList.toggle("active",i===n));$("partName").textContent=names[n];draw();}
+document.querySelectorAll(".track").forEach(b=>b.onclick=()=>selectTrack(+b.dataset.track));
+$("bpm").oninput=e=>{$("bpmVal").textContent=e.target.value;$("bpmRead").textContent=e.target.value;};
+function sound(track,time){
+  const ctx=audio, level=+$("level").value/100, tone=+$("tone").value/100, decay=+$("decay").value/100;
+  const out=ctx.createGain();out.gain.setValueAtTime(level*.45,time);out.connect(ctx.destination);
+  if(track===2){
+    const len=.045+decay*.12, size=Math.floor(ctx.sampleRate*len), buf=ctx.createBuffer(1,size,ctx.sampleRate), data=buf.getChannelData(0);
+    for(let i=0;i<size;i++)data[i]=(Math.random()*2-1)*(1-i/size);
+    const src=ctx.createBufferSource(), hp=ctx.createBiquadFilter();src.buffer=buf;hp.type="highpass";hp.frequency.value=5000+tone*7000;src.connect(hp);hp.connect(out);src.start(time);out.gain.setValueAtTime(level*.45,time);out.gain.exponentialRampToValueAtTime(.001,time+len);
+  } else {
+    const osc=ctx.createOscillator(), g=ctx.createGain();
+    osc.connect(g);g.connect(out);
+    if(track===0){osc.type="sine";osc.frequency.setValueAtTime(130,time);osc.frequency.exponentialRampToValueAtTime(42,time+.13+decay*.18);g.gain.setValueAtTime(1,time);g.gain.exponentialRampToValueAtTime(.001,time+.16+decay*.22);osc.start(time);osc.stop(time+.5);}
+    if(track===1){osc.type="triangle";osc.frequency.setValueAtTime(190,time);osc.frequency.exponentialRampToValueAtTime(95,time+.12);g.gain.setValueAtTime(.8,time);g.gain.exponentialRampToValueAtTime(.001,time+.12+decay*.15);osc.start(time);osc.stop(time+.4);}
+    if(track===3){osc.type="sawtooth";osc.frequency.setValueAtTime(55+tone*110,time);g.gain.setValueAtTime(.7,time);g.gain.exponentialRampToValueAtTime(.001,time+.12+decay*.5);osc.start(time);osc.stop(time+.8);}
+  }
+}
+function tick(){
+ const now=audio.currentTime, interval=60/(+$("bpm").value)/4;
+ while(nextTime<now+.1){
+   patterns.forEach((p,t)=>{if(p[step])sound(t,nextTime);});
+   const current=step;setTimeout(()=>{step=current;draw();},Math.max(0,(nextTime-now)*1000));
+   step=(step+1)%16;nextTime+=interval;
+ }
+}
+async function start(){
+ if(!audio)audio=new (window.AudioContext||window.webkitAudioContext)();
+ if(audio.state==="suspended")await audio.resume();
+ if(playing)return;playing=true;nextTime=audio.currentTime+.05;timer=setInterval(tick,25);$("status").textContent="Playing · 16 steps";$("play").classList.add("active");
+}
+function stop(){playing=false;clearInterval(timer);timer=null;step=0;draw();$("status").textContent="Stopped";$("play").classList.remove("active");}
+$("play").onclick=start;$("stop").onclick=stop;
+$("clear").onclick=()=>{patterns[selected].fill(false);draw();};
+$("demo").onclick=()=>{patterns.forEach(p=>p.fill(false));[0,4,8,12].forEach(i=>patterns[0][i]=true);[4,12].forEach(i=>patterns[1][i]=true);for(let i=0;i<16;i+=2)patterns[2][i]=true;[0,3,7,10,12].forEach(i=>patterns[3][i]=true);draw();$("status").textContent="Demo pattern loaded";};
+$("save").onclick=()=>{const data=JSON.stringify({bpm:+$("bpm").value,patterns});const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));a.download="tribe16-pattern.json";a.click();URL.revokeObjectURL(a.href);$("status").textContent="Pattern file exported";};
+draw();
+</script>
+</body>
+</html>
